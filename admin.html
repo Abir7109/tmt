@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Neaz Crochets Admin Dashboard"/>
+<title>Neaz Crochets — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Jost:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--cream:#F7F0E6;--warm-white:#FBF7F2;--rose:#C9908A;--rose-light:#E8C4BF;--rose-deep:#A96D67;--sage:#8A9E8A;--sage-light:#C3D4C3;--sage-deep:#5E7A5E;--terra:#C07A56;--terra-light:#E5C4AE;--brown:#6B4C3B;--brown-light:#9C7B6B;--text:#3D2C28;--text-soft:#7A5C52}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Jost',sans-serif;background:var(--cream);color:var(--text);min-height:100vh}
+
+/* ════ SIDEBAR ═══════════════════ */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:240px;background:var(--brown);padding:2rem 1.5rem;display:flex;flex-direction:column;z-index:100}
+.sidebar-logo{font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:600;color:var(--cream);margin-bottom:2.5rem}
+.sidebar-logo span{color:var(--rose-light);font-style:italic}
+.sidebar-nav{display:flex;flex-direction:column;gap:.3rem}
+.sidebar-nav a{color:rgba(247,240,230,.6);text-decoration:none;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;padding:.7rem 1rem;border-radius:4px;transition:background .3s,color .3s}
+.sidebar-nav a:hover,.sidebar-nav a.active{background:rgba(247,240,230,.1);color:var(--cream)}
+.sidebar-nav a.active{font-weight:500}
+.sidebar-back{margin-top:auto;color:rgba(247,240,230,.4);font-size:.72rem;letter-spacing:.1em}
+.sidebar-back a{color:var(--rose-light);text-decoration:none}
+
+/* ════ MAIN ═══════════════════ */
+.main{margin-left:240px;padding:2.5rem 3rem;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:2.5rem;flex-wrap:wrap;gap:1rem}
+.topbar h1{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:400;color:var(--brown)}
+.topbar-right{display:flex;gap:.8rem;align-items:center}
+.topbar-time{font-size:.75rem;color:var(--text-soft)}
+
+/* ════ STATS ═══════════════════ */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.2rem;margin-bottom:2.5rem}
+.stat-card{background:var(--warm-white);border:1px solid rgba(201,144,138,.12);border-radius:8px;padding:1.5rem;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:8px 8px 0 0}
+.stat-card.s-pending::before{background:var(--rose-deep)}
+.stat-card.s-progress::before{background:var(--terra)}
+.stat-card.s-done::before{background:var(--sage-deep)}
+.stat-card.s-total::before{background:var(--brown)}
+.stat-label{font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:var(--text-soft);margin-bottom:.5rem}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.6rem;font-weight:300;color:var(--brown);line-height:1}
+
+/* ════ FILTERS ═══════════════════ */
+.filters{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.filter-input{border:1.5px solid rgba(201,144,138,.25);border-radius:4px;padding:.6rem 1rem;font-family:'Jost',sans-serif;font-size:.82rem;background:var(--warm-white);color:var(--text);outline:none;width:260px;transition:border-color .3s}
+.filter-input:focus{border-color:var(--rose-deep)}
+.filter-btn{border:none;padding:.55rem 1.1rem;border-radius:20px;font-family:'Jost',sans-serif;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .3s,color .3s;border:1.5px solid rgba(201,144,138,.3);background:transparent;color:var(--text-soft)}
+.filter-btn:hover,.filter-btn.active{background:var(--rose-deep);color:white;border-color:var(--rose-deep)}
+.filter-btn.f-all.active{background:var(--brown);border-color:var(--brown)}
+
+/* ════ TABLE ═══════════════════ */
+.table-wrap{background:var(--warm-white);border:1px solid rgba(201,144,138,.12);border-radius:8px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+thead{background:var(--cream)}
+thead th{padding:1rem 1.2rem;text-align:left;font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-soft);font-weight:500;border-bottom:1px solid rgba(201,144,138,.15)}
+tbody tr{border-bottom:1px solid rgba(201,144,138,.08);transition:background .2s}
+tbody tr:hover{background:rgba(201,144,138,.04)}
+tbody td{padding:.9rem 1.2rem;vertical-align:middle}
+.td-id{font-size:.7rem;color:var(--text-soft);letter-spacing:.05em;font-weight:400}
+.td-product{font-weight:500;color:var(--brown)}
+.td-detail{font-size:.75rem;color:var(--text-soft);font-weight:300}
+.td-date{font-size:.75rem;color:var(--text-soft)}
+.td-color{display:flex;align-items:center;gap:.5rem}
+.color-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(0,0,0,.08);flex-shrink:0}
+.status-select{border:1.5px solid rgba(201,144,138,.3);border-radius:20px;padding:.35rem .8rem;font-family:'Jost',sans-serif;font-size:.7rem;background:transparent;color:var(--text);cursor:pointer;outline:none;transition:border-color .3s}
+.status-select:focus{border-color:var(--rose-deep)}
+.td-actions{text-align:right}
+.btn-delete{background:none;border:1.5px solid rgba(201,144,138,.3);color:var(--text-soft);padding:.35rem .7rem;border-radius:4px;font-size:.68rem;cursor:pointer;font-family:'Jost',sans-serif;transition:all .3s;letter-spacing:.08em}
+.btn-delete:hover{border-color:var(--rose-deep);color:var(--rose-deep);background:rgba(201,144,138,.06)}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--text-soft);font-weight:300}
+.empty-state span{font-size:3rem;display:block;margin-bottom:1rem}
+
+/* ════ ORDER DETAIL MODAL ═══════════════ */
+.detail-overlay{position:fixed;inset:0;background:rgba(61,44,40,.5);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:2rem;opacity:0;pointer-events:none;transition:opacity .3s}
+.detail-overlay.active{opacity:1;pointer-events:all}
+.detail-modal{background:var(--warm-white);border-radius:8px;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;padding:2rem;transform:translateY(20px) scale(.96);transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.detail-overlay.active .detail-modal{transform:translateY(0) scale(1)}
+.detail-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem}
+.detail-header h3{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:400;color:var(--brown)}
+.detail-close{background:none;border:none;font-size:1.2rem;color:var(--text-soft);cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:all .3s}
+.detail-close:hover{color:var(--rose-deep);background:rgba(201,144,138,.1)}
+.detail-row{display:flex;gap:1rem;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(201,144,138,.1)}
+.detail-row:last-child{border-bottom:none}
+.detail-label{font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-soft);width:100px;flex-shrink:0;padding-top:.15rem}
+.detail-value{font-size:.88rem;color:var(--text);line-height:1.5}
+.detail-value small{display:block;font-size:.75rem;color:var(--text-soft);margin-top:.2rem;font-weight:300}
+
+/* ════ RESPONSIVE ═══════════════ */
+.login-overlay{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:var(--cream);transition:opacity .4s}
+.login-overlay.hidden{opacity:0;pointer-events:none}
+.login-box{text-align:center;max-width:380px;width:100%;padding:2rem}
+.login-box .login-logo{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--brown);margin-bottom:.3rem}
+.login-box .login-logo span{color:var(--rose-deep);font-style:italic}
+.login-box .login-sub{font-size:.82rem;color:var(--text-soft);margin-bottom:2.5rem;font-weight:300}
+.login-field{width:100%;border:1.5px solid rgba(201,144,138,.3);border-radius:4px;padding:.9rem 1.1rem;font-family:'Jost',sans-serif;font-size:.9rem;background:var(--warm-white);color:var(--text);outline:none;transition:border-color .3s,box-shadow .3s;text-align:center;letter-spacing:.15em}
+.login-field:focus{border-color:var(--rose-deep);box-shadow:0 0 0 3px rgba(169,109,103,.1)}
+.login-field::placeholder{letter-spacing:.05em;font-size:.8rem}
+.login-btn{margin-top:1.2rem;width:100%;background:var(--rose-deep);color:white;border:none;padding:.9rem;font-family:'Jost',sans-serif;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;border-radius:3px;cursor:pointer;transition:background .3s}
+.login-btn:hover{background:var(--brown)}
+.login-error{margin-top:.8rem;font-size:.75rem;color:var(--rose-deep);min-height:1.2rem}
+
+@media(max-width:900px){
+  .sidebar{position:relative;width:100%;flex-direction:row;align-items:center;padding:1rem 1.5rem;gap:1rem}
+  .sidebar-nav{flex-direction:row;gap:.2rem;flex-wrap:wrap}
+  .sidebar-back{display:none}
+  .main{margin-left:0;padding:1.5rem}
+  table{font-size:.75rem}
+  thead th,tbody td{padding:.7rem .8rem}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <div class="login-logo">Neaz <span>Crochets</span></div>
+    <p class="login-sub">Admin Dashboard Login</p>
+    <input type="password" class="login-field" id="login-pass" placeholder="Enter password"/>
+    <div class="login-error" id="login-error"></div>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Sign In</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Neaz <span>Crochets</span></div>
+  <nav class="sidebar-nav">
+    <a href="#" class="active" onclick="setActive(this);filterStatus('');return false">Dashboard</a>
+    <a href="#" onclick="setActive(this);filterStatus('Pending');return false">Pending</a>
+    <a href="#" onclick="setActive(this);filterStatus('In Progress');return false">In Progress</a>
+    <a href="#" onclick="setActive(this);filterStatus('Completed');return false">Completed</a>
+  </nav>
+  <div class="sidebar-back"><a href="#" onclick="doLogout()">Logout</a> · <a href="/">Website</a></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <h1>Order Dashboard</h1>
+    <div class="topbar-right">
+      <span class="topbar-time" id="topbar-time"></span>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card s-total"><div class="stat-label">Total Orders</div><div class="stat-num" id="stat-total">0</div></div>
+    <div class="stat-card s-pending"><div class="stat-label">Pending</div><div class="stat-num" id="stat-pending">0</div></div>
+    <div class="stat-card s-progress"><div class="stat-label">In Progress</div><div class="stat-num" id="stat-progress">0</div></div>
+    <div class="stat-card s-done"><div class="stat-label">Completed</div><div class="stat-num" id="stat-done">0</div></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <input type="text" class="filter-input" id="search-input" placeholder="Search by name, product, ID…"/>
+    <button class="filter-btn f-all active" onclick="filterStatus('')">All</button>
+    <button class="filter-btn" onclick="filterStatus('Pending')">Pending</button>
+    <button class="filter-btn" onclick="filterStatus('In Progress')">In Progress</button>
+    <button class="filter-btn" onclick="filterStatus('Completed')">Completed</button>
+    <button class="filter-btn" onclick="filterStatus('Cancelled')">Cancelled</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Product</th>
+          <th>Colour</th>
+          <th>Yarn</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="orders-tbody"></tbody>
+    </table>
+    <div id="table-empty" class="empty-state" style="display:none">
+      <span>📋</span>
+      <p>No orders found. Orders from the main website will appear here.</p>
+    </div>
+  </div>
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-modal" id="detail-modal"></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+
+/* ═══ LOGIN ═══ */
+async function doLogin(){
+  const val=$('#login-pass').value;
+  if(!val){$('#login-error').textContent='Enter password.';return}
+  $('#login-btn').disabled=true;
+  $('#login-btn').textContent='Signing in…';
+  try{
+    const res=await fetch('/api/auth',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({password:val})
+    });
+    const data=await res.json();
+    if(res.ok && data.success){
+      sessionStorage.setItem('neaz_admin_token',data.token);
+      sessionStorage.setItem('neaz_admin','1');
+      $('#login-overlay').classList.add('hidden');
+      $('#login-error').textContent='';
+    } else {
+      $('#login-error').textContent=data.error||'Incorrect password.';
+      $('#login-pass').value='';
+      $('#login-pass').focus();
+    }
+  } catch(e){
+    $('#login-error').textContent='Connection error. Try again.';
+  }
+  $('#login-btn').disabled=false;
+  $('#login-btn').textContent='Sign In';
+}
+$('#login-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+(async function(){
+  const token=sessionStorage.getItem('neaz_admin_token');
+  if(token){
+    try{
+      const res=await fetch('/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+      if(res.ok){
+        const data=await res.json();
+        if(data.valid){$('#login-overlay').classList.add('hidden');return}
+      }
+    } catch{}
+    sessionStorage.removeItem('neaz_admin_token');
+    sessionStorage.removeItem('neaz_admin');
+  }
+  setTimeout(()=>$('#login-pass').focus(),300);
+})();
+function doLogout(){sessionStorage.removeItem('neaz_admin_token');sessionStorage.removeItem('neaz_admin');location.reload()}
+function setActive(el){$$('.sidebar-nav a').forEach(a=>a.classList.remove('active'));el.classList.add('active')}
+
+/* ═══ DATA ═══ */
+function getOrders(){try{return JSON.parse(localStorage.getItem('neaz_orders')||'[]')}catch{return[]}}
+function setOrders(o){localStorage.setItem('neaz_orders',JSON.stringify(o))}
+
+/* ═══ TIME ═══ */
+function updateTime(){
+  const now=new Date();
+  $('#topbar-time').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'})+' · '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+updateTime();setInterval(updateTime,60000);
+
+/* ═══ STATS ═══ */
+function updateStats(){
+  const orders=getOrders();
+  $('#stat-total').textContent=orders.length;
+  $('#stat-pending').textContent=orders.filter(o=>o.status==='Pending').length;
+  $('#stat-progress').textContent=orders.filter(o=>o.status==='In Progress').length;
+  $('#stat-done').textContent=orders.filter(o=>o.status==='Completed').length;
+}
+
+/* ═══ FILTER ═══ */
+let currentFilter='';
+let searchQuery='';
+function filterStatus(s){
+  currentFilter=s;
+  $$('.filter-btn').forEach(b=>b.classList.remove('active'));
+  if(!s){$('.f-all').classList.add('active')}
+  else{$$('.filter-btn').forEach(b=>{if(b.textContent.trim()===s)b.classList.add('active')})}
+  renderTable();
+}
+
+$('#search-input').addEventListener('input',e=>{searchQuery=e.target.value.toLowerCase();renderTable()});
+
+/* ═══ RENDER TABLE ═══ */
+function renderTable(){
+  let orders=getOrders();
+  if(currentFilter) orders=orders.filter(o=>o.status===currentFilter);
+  if(searchQuery) orders=orders.filter(o=>{
+    return (o.name||'').toLowerCase().includes(searchQuery)||
+           (o.product||'').toLowerCase().includes(searchQuery)||
+           (o.id||'').toLowerCase().includes(searchQuery)||
+           (o.contact||'').toLowerCase().includes(searchQuery);
+  });
+  const tbody=$('#orders-tbody');
+  const empty=$('#table-empty');
+  if(!orders.length){tbody.innerHTML='';empty.style.display='block';updateStats();return}
+  empty.style.display='none';
+  const frag=document.createDocumentFragment();
+  orders.forEach(o=>{
+    const tr=document.createElement('tr');
+    const d=new Date(o.date);
+    const dateStr=d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    tr.innerHTML=`
+      <td class="td-id">${o.id}</td>
+      <td><div class="td-product">${o.product}</div><div class="td-detail">${o.patterns?o.patterns.join(', '):''}</div></td>
+      <td><div class="td-color">${o.colorHex?`<span class="color-dot" style="background:${o.colorHex}"></span>`:''}${o.color}</div></td>
+      <td class="td-detail">${o.yarn}</td>
+      <td><div>${o.name||'—'}</div><div class="td-detail">${o.contact||''}</div></td>
+      <td class="td-date">${dateStr}</td>
+      <td>
+        <select class="status-select" onchange="changeStatus('${o.id}',this.value)">
+          <option${o.status==='Pending'?' selected':''}>Pending</option>
+          <option${o.status==='In Progress'?' selected':''}>In Progress</option>
+          <option${o.status==='Completed'?' selected':''}>Completed</option>
+          <option${o.status==='Cancelled'?' selected':''}>Cancelled</option>
+        </select>
+      </td>
+      <td class="td-actions"><button class="btn-delete" onclick="viewDetail('${o.id}')">View</button></td>`;
+    frag.appendChild(tr);
+  });
+  tbody.innerHTML='';
+  tbody.appendChild(frag);
+  updateStats();
+}
+
+/* ═══ CHANGE STATUS ═══ */
+function changeStatus(id,status){
+  const orders=getOrders();
+  const idx=orders.findIndex(o=>o.id===id);
+  if(idx>-1){orders[idx].status=status;setOrders(orders);renderTable()}
+}
+
+/* ═══ VIEW DETAIL ═══ */
+function viewDetail(id){
+  const orders=getOrders();
+  const o=orders.find(x=>x.id===id);
+  if(!o) return;
+  const d=new Date(o.date);
+  const dateStr=d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' at '+d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  $('#detail-modal').innerHTML=`
+    <div class="detail-header">
+      <div><h3>${o.product}</h3><div style="font-size:.72rem;color:var(--text-soft);margin-top:.2rem">${o.id}</div></div>
+      <button class="detail-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value">
+      <select class="status-select" onchange="changeStatus('${o.id}',this.value);closeDetail()">
+        <option${o.status==='Pending'?' selected':''}>Pending</option>
+        <option${o.status==='In Progress'?' selected':''}>In Progress</option>
+        <option${o.status==='Completed'?' selected':''}>Completed</option>
+        <option${o.status==='Cancelled'?' selected':''}>Cancelled</option>
+      </select>
+    </div></div>
+    <div class="detail-row"><div class="detail-label">Colour</div><div class="detail-value"><div class="td-color">${o.colorHex?`<span class="color-dot" style="background:${o.colorHex}"></span>`:''}${o.color}</div></div></div>
+    <div class="detail-row"><div class="detail-label">Yarn</div><div class="detail-value">${o.yarn}</div></div>
+    <div class="detail-row"><div class="detail-label">Patterns</div><div class="detail-value">${o.patterns?o.patterns.join(', '):'None'}</div></div>
+    ${o.notes?`<div class="detail-row"><div class="detail-label">Notes</div><div class="detail-value">${o.notes}</div></div>`:''}
+    <div class="detail-row"><div class="detail-label">Customer</div><div class="detail-value">${o.name||'—'}<small>${o.contact||''}</small></div></div>
+    <div class="detail-row"><div class="detail-label">Photos</div><div class="detail-value">${o.photoCount||0} uploaded</div></div>
+    <div class="detail-row"><div class="detail-label">Ordered</div><div class="detail-value">${dateStr}</div></div>
+    <div style="text-align:right;margin-top:1.5rem">
+      <button class="btn-delete" onclick="deleteOrder('${o.id}')" style="border-color:var(--rose-deep);color:var(--rose-deep)">Delete Order</button>
+    </div>`;
+  $('#detail-overlay').classList.add('active');
+}
+function closeDetail(){$('#detail-overlay').classList.remove('active')}
+$('#detail-overlay').addEventListener('click',e=>{if(e.target===$('#detail-overlay'))closeDetail()});
+
+/* ═══ DELETE ═══ */
+function deleteOrder(id){
+  if(!confirm('Delete this order?')) return;
+  const orders=getOrders().filter(o=>o.id!==id);
+  setOrders(orders);
+  closeDetail();
+  renderTable();
+}
+
+/* ═══ INIT ═══ */
+renderTable();
+</script>
+</body>
+</html>
